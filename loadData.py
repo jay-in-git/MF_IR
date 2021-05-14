@@ -80,7 +80,7 @@ def loadData(file_path, MFPath, method='BPR', cut=10, nug_num=5):
         for neg_index in neg_list:
             total_negative[user].append((user, neg_index, 0))
         MF[user, items] = 1
-    if not os.path.exists(MFPath):
-        print(f'Saving matrix to {MFPath}.ngz')
+    if not os.path.exists(f'{MFPath}.npz'):
+        print(f'Saving matrix to {MFPath}.npz')
         save_npz(MFPath, MF.tocoo())
     return train_data, train_count, val_data, val_count, MF, total_negative

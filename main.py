@@ -98,4 +98,35 @@ if method == 'BPR':
             min_loss = val_loss
             print(f'Saving model to {model_path}')
             torch.save(model.state_dict(), model_path)
+else:
+    for epoch in range(n_epoch):
+        """ Train one epoch """
+        train_loader.dataset.sampleNegative(total_negative)
+        val_loader.dataset.sampleNegative(total_negative)
+        model.train()
+        train_loss = 0
+        for user, item, attr in tqdm(train_loader):
+            optimizer.zero_grad()
+            user, item, attr = user.to(device), item.to(device), attr.to(device)
+            prediction = model(user, item, attr)
+            loss = -(attr * FT.logsigmoid(prediction) + (1 - attr) * torch.log(1 - torch.sigmoid(prediction))).sum()
+            train_loss += loss.item() / len(user)
+            loss.backward()
+            optimizer.step()
+        print(f'Epoch {epoch}, Train Avg Loss = {train_loss / len(train_loader)}')
+
+        """ Validate the MF """
+        print('Validating...')
+        val_loss = 0
+        model.eval()
+        for user, pos_item, neg_item in tqdm(val_loader):
+            user, item, attr = user.to(device), item.to(device), attr.to(device)
+            prediction = model(user, item, attr)
+            loss = -(attr * FT.logsigmoid(prediction) + (1 - attr) * torch.log(1 - torch.sigmoid(prediction))).sum()
+            val_loss += loss.item() / len(user)
+        print(f'Validation Avg Loss = {val_loss / len(val_loader)}')
+        if val_loss < min_loss:
+            min_loss = val_loss
+            print(f'Saving model to {model_path}')
+            torch.save(model.state_dict(), model_path)
 #os.system(f'python predict.py')

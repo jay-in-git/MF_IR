@@ -23,6 +23,7 @@ model.eval()
 with open(argvs.outPath, 'w') as out_file:
     print('UserId,ItemId', file=out_file)
     prediction = model.getPrediction().sort(descending=True)[1]
+    print(prediction.size())
     keys = MF.keys()
     for user in tqdm(range(MF.shape[0])):
         print(f'{user},', file=out_file, end='')
