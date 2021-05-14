@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import torch.nn.functional as FT
 
+import argparse
 import numpy as np
 import os
 from scipy.sparse import dok_matrix
@@ -15,11 +16,17 @@ torch.manual_seed(myseed)
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(myseed)
 
+parser = argparse.ArgumentParser(description='MFModel')
+parser.add_argument('-i', type=str, dest="dataPath")
+parser.add_argument('-m', type=str, dest="method")
+parser.add_argument('-MT', type=str, dest="MFPath")
+parser.add_argument('-s', type=str, dest="modelPath")
+argvs = parser.parse_args()
 
 """ Set hyper-parameters """
-file_path = os.sys.argv[1]
-method = os.sys.argv[2]
-model_path = os.sys.argv[3]
+file_path = argvs.dataPath
+method = argvs.method
+model_path = argvs.modelPath
 batch_size = 4096
 n_epoch = 50
 lr = 0.001
@@ -30,7 +37,7 @@ print(f'Device: {device}')
 """ Load the dataset """
 print(f'loading data from {file_path}...')
 from loadData import loadData, BPRDataset, BCEDataset
-train_data, train_count, val_data, val_count, MF, total_negative = loadData(file_path, method=method)
+train_data, train_count, val_data, val_count, MF, total_negative = loadData(file_path, argvs.MFPath, method=method)
 # print(len(train_data), len(val_data), MF.shape, len(total_negative))
 
 train_set = BPRDataset(train_data, train_count, MF) if method == 'BPR' else BCEDataset(train_data, train_count, MF)
@@ -59,8 +66,8 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_dec
 # -FT.logsigmoid(pos_prediction - neg_prediction)
 """ Start training """
 from tqdm import tqdm
+min_loss = 1000
 if method == 'BPR':
-    min_loss = 1000
     for epoch in range(n_epoch):
         """ Train one epoch """
         train_loader.dataset.sampleNegative(total_negative)
@@ -91,5 +98,4 @@ if method == 'BPR':
             min_loss = val_loss
             print(f'Saving model to {model_path}')
             torch.save(model.state_dict(), model_path)
-
 #os.system(f'python predict.py')

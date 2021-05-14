@@ -1,7 +1,8 @@
 from torch.utils.data import Dataset, DataLoader
-from scipy.sparse import dok_matrix
+from scipy.sparse import dok_matrix, save_npz
 from random import sample
 import numpy as np
+import os
 
 class BCEDataset(Dataset):
     def __init__(self, data, item_count, MF, neg=5):
@@ -40,7 +41,7 @@ class BPRDataset(Dataset):
             for i in range(self.neg):
                 self.data.append((pair[0], pair[1], neg_samples[i][1]))
 
-def loadData(file_path, method='BPR', cut=10, nug_num=5):
+def loadData(file_path, MFPath, method='BPR', cut=10, nug_num=5):
     raw_data = list()
     user_num = 0
     item_num = 0
@@ -79,5 +80,7 @@ def loadData(file_path, method='BPR', cut=10, nug_num=5):
         for neg_index in neg_list:
             total_negative[user].append((user, neg_index, 0))
         MF[user, items] = 1
-
+    if not os.path.exists(MFPath):
+        print(f'Saving matrix to {MFPath}.ngz')
+        save_npz(MFPath, MF.tocoo())
     return train_data, train_count, val_data, val_count, MF, total_negative
