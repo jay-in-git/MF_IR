@@ -20,12 +20,12 @@ if torch.cuda.is_available():
 file_path = os.sys.argv[1]
 method = os.sys.argv[2]
 model_path = os.sys.argv[3]
-batch_size = 1024
-n_epoch = 30
+batch_size = 4096
+n_epoch = 50
 lr = 0.001
 weight_decay = 0.01 if method == 'BPR' else 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+print(f'Device: {device}')
 
 """ Load the dataset """
 print(f'loading data from {file_path}...')
@@ -45,6 +45,7 @@ val_loader = DataLoader(val_set, batch_size, shuffle=False, drop_last=False)
 
 """ Test sampling negative """
 train_loader.dataset.sampleNegative(total_negative)
+val_loader.dataset.sampleNegative(total_negative)
 print(len(train_loader.dataset.data), len(train_loader.dataset.positive))
 print('Completed processing data.')
 
@@ -62,29 +63,33 @@ if method == 'BPR':
     min_loss = 1000
     for epoch in range(n_epoch):
         """ Train one epoch """
+        train_loader.dataset.sampleNegative(total_negative)
+        val_loader.dataset.sampleNegative(total_negative)
         model.train()
         train_loss = 0
-        for pos_pairs, neg_pairs in tqdm(train_loader):
+        for user, pos_item, neg_item in tqdm(train_loader):
             optimizer.zero_grad()
-            pos_prediction, neg_prediction = model(pos_pairs, neg_pairs)
+            user, pos_item, neg_item = user.to(device), pos_item.to(device), neg_item.to(device)
+            pos_prediction, neg_prediction = model(user, pos_item, neg_item)
             loss = -FT.logsigmoid(pos_prediction - neg_prediction).sum()
-            train_loss += loss.item() / len(pos_pairs)
+            train_loss += loss.item() / len(user)
             loss.backward()
             optimizer.step()
-        print(f'Epoch {epoch}, Train Avg Loss = {train_loss}')
+        print(f'Epoch {epoch}, Train Avg Loss = {train_loss / len(train_loader)}')
 
         """ Validate the MF """
         print('Validating...')
         val_loss = 0
         model.eval()
-        for pos_pairs, neg_pairs in tqdm(val_loader):
-            pos_prediction, neg_prediction = model(pos_pairs, neg_pairs)
+        for user, pos_item, neg_item in tqdm(val_loader):
+            user, pos_item, neg_item = user.to(device), pos_item.to(device), neg_item.to(device)
+            pos_prediction, neg_prediction = model(user, pos_item, neg_item)
             loss = -FT.logsigmoid(pos_prediction - neg_prediction).sum()
-            val_loss += loss.item() / len(pos_pairs)
-        print(f'Validation Avg Loss = {val_loss}')
+            val_loss += loss.item() / len(user)
+        print(f'Validation Avg Loss = {val_loss / len(val_loader)}')
         if val_loss < min_loss:
             min_loss = val_loss
             print(f'Saving model to {model_path}')
             torch.save(model.state_dict(), model_path)
 
-os.system(f'python predict.py')
+#os.system(f'python predict.py')

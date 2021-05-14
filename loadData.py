@@ -38,7 +38,7 @@ class BPRDataset(Dataset):
         for pair in self.positive:
             neg_samples = sample(total_negative[pair[0]], self.neg)
             for i in range(self.neg):
-                self.data.append(((pair[0], pair[1]), (neg_samples[i][0], neg_samples[i][1])))
+                self.data.append((pair[0], pair[1], neg_samples[i][1]))
 
 def loadData(file_path, method='BPR', cut=10, nug_num=5):
     raw_data = list()
@@ -51,7 +51,7 @@ def loadData(file_path, method='BPR', cut=10, nug_num=5):
             user_idx = int(user_idx)
             user_num = max(user_num, user_idx)
 
-            item_idxs = [int(item_idx.strip()) for item_idx in item_idxs.split()] # sort?
+            item_idxs = [int(item_idx.strip()) for item_idx in item_idxs.split()]
             item_num = max(item_num, *tuple(item_idxs)) 
 
             raw_data.append((user_idx, item_idxs))
