@@ -19,16 +19,16 @@ MF = load_npz(argvs.MFPath).todok()
 model = BPRModel(MF.shape[0], MF.shape[1]) if argvs.method == 'BPR' else BCEModel(MF.shape[0], MF.shape[1])
 ckpt = torch.load(argvs.modelPath)
 model.load_state_dict(ckpt)
-
+model.eval()
 with open(argvs.outPath, 'w') as out_file:
     print('UserId,ItemId', file=out_file)
     prediction = model.getPrediction().sort(descending=True)[1]
+    keys = MF.keys()
     for user in tqdm(range(MF.shape[0])):
         print(f'{user},', file=out_file, end='')
         cnt = 0
-        keys = MF[user].keys()
         for item in prediction[user]:
-            if item.item not in keys:
+            if (user, item.item()) not in keys:
                 print(item.item(), end=' ', file=out_file)
                 cnt += 1
             if cnt == 50:

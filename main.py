@@ -28,9 +28,9 @@ file_path = argvs.dataPath
 method = argvs.method
 model_path = argvs.modelPath
 batch_size = 4096
-n_epoch = 50
+n_epoch = 150
 lr = 0.001
-weight_decay = 0.01 if method == 'BPR' else 0
+weight_decay = 0.001 if method == 'BPR' else 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Device: {device}')
 
@@ -60,7 +60,7 @@ print('Completed processing data.')
 """ Prepare the models """
 from model import BPRModel, BCEModel
 model = BPRModel(MF.shape[0], MF.shape[1]).to(device) if 'BPR' else BCEModel(MF.shape[0], MF.shape[1]).to(device)
-optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+optimizer = torch.optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
 
 # -(attr * FT.logsigmoid(prediction) + (1 - attr) * torch.log(1 - torch.sigmoid(prediction))).sum()
 # -FT.logsigmoid(pos_prediction - neg_prediction)
