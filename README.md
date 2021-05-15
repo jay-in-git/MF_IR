@@ -6,11 +6,11 @@
 
 - Loss function:
   Each (user, item, attr) pair indicates the relation of the user(0 ~ num_user - 1) to item(0 ~ num_item - 1) is attr (1 or 0).
-  Let ![1](http://latex.codecogs.com/svg.latex? \text{prediction}=\text{userEmbedding[user]}\cdot\text{itemEmbedding[item]}) for each pair.
+  Let ![1](http://latex.codecogs.com/svg.latex?prediction=\text{userEmbedding[user]}\cdot\text{itemEmbedding[item]}) for each pair.
 
   So for one pair, the loss function ![2](http://latex.codecogs.com/svg.latex?L) will be: ![3](http://latex.codecogs.com/svg.latex?-(\text{attr}\times\log\sigma(\text{prediction})+(1-\text{attr})\times\log(1-\sigma(\text{prediction})))))
 
-  ![4](http://latex.codecogs.com/svg.latex?\text{total loss} = \displaystyle \sum_{\text{(user, item, attr)}\in\text{Data}} \dfrac{L}{\text{Data size}})
+  ![4](http://latex.codecogs.com/svg.latex?total loss=\displaystyle \sum_{\text{(user, item, attr)}\in\text{Data}} \dfrac{L}{\text{Data size}})
 
 - Parameters: 
   Epoch = 10, Batch size = 4096, Hidden dim = 512, Optimizer = AdamW and SGD (switch at the 5th epoch).
