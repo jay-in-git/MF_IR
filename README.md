@@ -17,7 +17,7 @@
 
 - Negative sample method:
   Pasitive ratio : Negative ratio = 1 : 5.
-  Maintained a 2D array named **total_negative** that stored all the missing values for the users in the format (user, item, 0). That is, total_negative[user] was a array that stored elements like (user, item1, 0), (user, item2, 0), ..., (user, item![4](http://latex.codecogs.com/svg.latex?_\text{k}), 0).
+  Maintained a 2D array named **total_negative** that stored all the missing values for the users in the format (user, item, 0). That is, total_negative[user] was a array that stored elements like (user, item1, 0), (user, item2, 0), ..., (user, item![5](http://latex.codecogs.com/svg.latex?_\text{k}), 0).
   Each time a new epoch started, just used random.sample to sample 5 times more than positive data of each user from total_negative, and then append them to the dataset.
 
 
@@ -32,11 +32,11 @@ There's no need to check if the samples for validation and the samples for train
 - Loss function:
   Each (user, pos_item, neg_item) pair provides one positive item and one negative item for the user to calculate the loss.
 
-  Let ![4](http://latex.codecogs.com/svg.latex?\left\{\begin{array}{c}\text{pos_prediction}=\text{userEmbedding[user]} \cdot \text{itemEmbedding[pos_item]}\\\text{neg_prediction}=\text{userEmbedding[user]} \cdot \text{itemEmbedding[neg_item]}\end{array}\right.) for each pair.
+  Let ![6](http://latex.codecogs.com/svg.latex?\left\{\begin{array}{c}\text{pos_prediction}=\text{userEmbedding[user]} \cdot \text{itemEmbedding[pos_item]}\\\text{neg_prediction}=\text{userEmbedding[user]} \cdot \text{itemEmbedding[neg_item]}\end{array}\right.) for each pair.
 
-  So for one pair, the loss function ![4](http://latex.codecogs.com/svg.latex?L) will be: ![4](http://latex.codecogs.com/svg.latex?-\ln\sigma(\text{pos_prediction} - \text{neg_prediction}))
+  So for one pair, the loss function ![7](http://latex.codecogs.com/svg.latex?L) will be: ![8](http://latex.codecogs.com/svg.latex?-\ln\sigma(\text{pos_prediction} - \text{neg_prediction}))
 
-  ![4](http://latex.codecogs.com/svg.latex?{\text{total loss} = \displaystyle \sum_{\text{(user, pos_item, neg_item)}\in\text{Data}}\dfrac{L}{\text{Data size}}})
+  ![9](http://latex.codecogs.com/svg.latex?{\text{total loss} = \displaystyle \sum_{\text{(user, pos_item, neg_item)}\in\text{Data}}\dfrac{L}{\text{Data size}}})
 
 - Parameters:
   Epoch = 30, Batch size = 4096, Hidden dim = 512, Optimizer = AdamW and SGD (switch at the 10th epoch).
