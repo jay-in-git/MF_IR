@@ -30,7 +30,7 @@ model_path = argvs.modelPath
 batch_size = 4096
 n_epoch = 30
 lr = 0.001
-weight_decay = 0.001 if method == 'BPR' else 0
+weight_decay = 0.001
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Device: {device}')
 
@@ -132,4 +132,7 @@ else:
             min_loss = val_loss
             print(f'Saving model to {model_path}')
             torch.save(model.state_dict(), model_path)
+        
+        if epoch == 20:
+            optimizer = torch.optim.SGD(model.parameters(), lr=lr/5, weight_decay=weight_decay)
 #os.system(f'python predict.py')
