@@ -28,7 +28,7 @@ file_path = argvs.dataPath
 method = argvs.method
 model_path = argvs.modelPath
 batch_size = 4096
-n_epoch = 150
+n_epoch = 30
 lr = 0.001
 weight_decay = 0.001 if method == 'BPR' else 0
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -59,8 +59,8 @@ print('Completed processing data.')
 
 """ Prepare the models """
 from model import BPRModel, BCEModel
-model = BPRModel(MF.shape[0], MF.shape[1]).to(device) if 'BPR' else BCEModel(MF.shape[0], MF.shape[1]).to(device)
-optimizer = torch.optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
+model = BPRModel(MF.shape[0], MF.shape[1]).to(device) if method == 'BPR' else BCEModel(MF.shape[0], MF.shape[1]).to(device)
+optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
 
 # -(attr * FT.logsigmoid(prediction) + (1 - attr) * torch.log(1 - torch.sigmoid(prediction))).sum()
 # -FT.logsigmoid(pos_prediction - neg_prediction)
@@ -98,6 +98,9 @@ if method == 'BPR':
             min_loss = val_loss
             print(f'Saving model to {model_path}')
             torch.save(model.state_dict(), model_path)
+        
+        if epoch == 10:
+            optimizer = torch.optim.SGD(model.parameters(), lr=lr/5, weight_decay=weight_decay)
 else:
     for epoch in range(n_epoch):
         """ Train one epoch """
@@ -119,7 +122,7 @@ else:
         print('Validating...')
         val_loss = 0
         model.eval()
-        for user, pos_item, neg_item in tqdm(val_loader):
+        for user, item, attr in tqdm(val_loader):
             user, item, attr = user.to(device), item.to(device), attr.to(device)
             prediction = model(user, item, attr)
             loss = -(attr * FT.logsigmoid(prediction) + (1 - attr) * torch.log(1 - torch.sigmoid(prediction))).sum()

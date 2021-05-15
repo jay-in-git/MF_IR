@@ -41,7 +41,7 @@ class BPRDataset(Dataset):
             for i in range(self.neg):
                 self.data.append((pair[0], pair[1], neg_samples[i][1]))
 
-def loadData(file_path, MFPath, method='BPR', cut=10, nug_num=5):
+def loadData(file_path, MFPath, method='BPR', cut=int(1/0.11), nug_num=5):
     raw_data = list()
     user_num = 0
     item_num = 0
