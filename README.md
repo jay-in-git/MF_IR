@@ -54,6 +54,25 @@ There's no need to check if the samples for validation and the samples for train
 
 ### Result comparison
 
+---
 
+### MAP value under different hidden factor
+
+The points are (16, 0.04791), (32, 0.04765), (64, 0.04975), and (128, 0.05157). Besides, I tested the MAP value for d=512 and got (512, 0.05498).
+
+The experiment is under the condition decribed following:
+
+- optimizer: SGD
+- Random seed: 42069
+- Loss function: BPR
+- Learning rate: 0.005
+- negative sample ratio: 5
+- 50 epochs in total
+
+![](https://imgur.com/mKHufYc.png)
+
+With the hidden dimension increases, the model becomes more powerful. However, there're overfits when I trained the model with higher hidden dimension, which are not shown in the curve. The curve can't show the overfit results because the program only saves the model with the least BPR loss on validation data, so that the overfitting models will not be used to generate prediction.
+
+The decreasing in MAP value between d = 16 and d = 32 may due to that 16 and 32 are not significantly different. Thus,  when d = 32, the MAP value may be affected by random seed or several reasons, leading to lower value.
 
 
