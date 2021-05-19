@@ -53,6 +53,10 @@ There's no need to check if the samples for validation and the samples for train
 ---
 
 ### Result comparison
+BPR loss benefits the performance. The followings are some reason why BPR is stronger.
+
+- BPR loss indicates that if a user prefers item i than item j, so it can be more personalized and thus accurate.
+- To maximize BPR score, the model can either maximize pos_prediction or minimize neg_prediction, so there are chances that the model doesn't pose too much bias on the negative assumptions. But in BCE, the model will definitely try to minimize the score of the negative assumption, resulting in more bias.
 
 ---
 
@@ -75,4 +79,31 @@ With the hidden dimension increases, the model becomes more powerful. However, t
 
 The decreasing in MAP value between d = 16 and d = 32 may due to that 16 and 32 are not significantly different. Thus,  when d = 32, the MAP value may be affected by random seed or several reasons, leading to lower value.
 
+---
+### Positive-Negtive Ratio Comparison
 
+The points are (1, 0.03720), (5, 0.05461), (10, 0.05573), and (15, 0.05569).
+
+The experiment is under the condition decribed following:
+
+- optimizer: SGD
+- Random seed: 42069
+- Loss function: BPR
+- Learning rate: 0.005
+- Hidden dim: 512
+- 50 epochs in total
+
+![](https://imgur.com/a/wtwpSzd.png)
+
+As the ratio of negative samples grew, the MAP value also grew. However, the increment in MAP value converged when the ratio grew from 1:10 to 1:15. 
+
+The convergence might due to serveral reason:
+
+1. The limited hidden dimension couldn't fit the target matrix.
+2. The sampling made too much assumption on negative data, leading to wrong prediction.
+3. The model overfitted.
+
+If we want to improve the score with high sample ratio, we may try:
+
+1. Enlarge the hidden dimension.
+2. Use dropout for the model.
