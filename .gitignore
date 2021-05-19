@@ -5,7 +5,7 @@ matrix.npz
 models/
 plot.py
 prediction.csv
-report.md
+report*
 results/
 run.sh
 test.csv
